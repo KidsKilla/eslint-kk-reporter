@@ -1,0 +1,2 @@
+# eslint-reporter
+Thorough reporter
