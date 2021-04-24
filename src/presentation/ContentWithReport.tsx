@@ -1,40 +1,79 @@
 import React from 'react'
-import { ESLintReport } from '../app-logic/eslintReport'
-import { useIssue } from '../app-logic/hook/useIssue'
-import { useFile } from '../app-logic/hook/useFile'
-import { FileTable } from './FileTable'
-import { IssueTable } from './IssueTable'
-import { RuleTable } from './RuleTable'
-import { Typography } from '@material-ui/core'
+import {
+  Typography,
+  Grid,
+  Paper,
+  Alert,
+  AlertTitle,
+  TableContainer,
+  Table,
+  TableBody,
+  Box,
+} from '@material-ui/core'
+import styled from '@emotion/styled'
+import { useTotalCounts } from '../app-logic/hook/useTotalCounts'
+import { THead, TRow } from './RuleTable'
+import { useIssues } from '../app-logic/hook/useIssues'
+import { GrayText } from './util'
 
-export const ContentWithReport: React.VFC<{
-  report: ESLintReport
-}> = ({ report }) => {
-  const { files } = useFile()
-  const { issues } = useIssue()
-  if (!issues.length) {
-    return <p>No issues 💪</p>
-  }
-
-  const issueFiles = files.filter(
-    (file) => file.errorCount > 0 || file.warningCount > 0,
-  )
-  // console.log(report)
-  const rules = Object.keys(report.metadata.rulesMeta)
+export const ContentWithReport: React.VFC = () => {
+  const totalQuantity = useTotalCounts()
+  const { issuesQuantity, rulesViolatedMap } = useIssues()
   return (
-    <>
-      <p>All files: {files.length}</p>
-      <p>Files with problems: {issueFiles.length}</p>
-      <p>All rules: {rules.length}</p>
+    <Box pb={10}>
+      <Grid container spacing={3}>
+        <Island>
+          <Ppr>
+            <Alert variant="outlined" severity="info">
+              <AlertTitle>Issues: {issuesQuantity.issues}</AlertTitle>
+              <GrayText>
+                Files: {issuesQuantity.files} of {totalQuantity.files}
+                <br />
+                Rules: {issuesQuantity.rules} of {totalQuantity.rules}
+              </GrayText>
+            </Alert>
+          </Ppr>
+        </Island>
 
-      <Typography variant="h4">Issues:</Typography>
-      <IssueTable issues={issues} />
-
-      <Typography variant="h4">Rules:</Typography>
-      <RuleTable ruleMap={report.metadata.rulesMeta} />
-
-      <Typography variant="h4">Files:</Typography>
-      <FileTable files={files} />
-    </>
+        <Island title="By rules:">
+          <TableContainer component={Paper}>
+            <Table>
+              <THead />
+              <TableBody>
+                {Object.keys(rulesViolatedMap).map((ruleId) => (
+                  <TRow
+                    key={ruleId}
+                    ruleName={ruleId}
+                    rule={rulesViolatedMap[ruleId]}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Island>
+      </Grid>
+    </Box>
   )
 }
+
+const Island: React.FC<{
+  title?: string
+}> = (props) => (
+  <Grd item xs={12}>
+    {props.title && (
+      <Typography variant="h4" style={{ marginBottom: '5px' }}>
+        {props.title}
+      </Typography>
+    )}
+    {props.children}
+  </Grd>
+)
+const Ppr = styled(Paper)({
+  // padding: '20px',
+  marginTop: '20px',
+})
+
+const Grd = styled(Grid)({
+  marginRight: '20px',
+  marginLeft: '20px',
+})

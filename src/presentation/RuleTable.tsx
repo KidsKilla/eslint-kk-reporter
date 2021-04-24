@@ -1,94 +1,162 @@
 import React, { useState } from 'react'
 import {
-  Paper,
-  Table,
-  TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   IconButton,
+  Box,
+  Collapse,
+  Chip,
+  Alert,
 } from '@material-ui/core'
-import {
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-  CheckOutlined,
-} from '@material-ui/icons'
-import { keyof, keyVal } from '../lib/iter'
-import { ESLintReport } from '../app-logic/eslintReport'
+import { getSharedPath } from '../lib/filePath'
+import { ReportRule } from '../app-logic/feature/rule'
+import { useIssues } from '../app-logic/hook/useIssues'
+import { CollapseWithTitle, GrayText, icon, SmallText } from './util'
+import { extractLines } from '../lib/extractLines'
+import { ReportIssue } from '../app-logic/feature/issue'
 
-type RuleMap = ESLintReport['metadata']['rulesMeta']
-type Rule = RuleMap[string]
+export const THead: React.VFC = () => (
+  <TableHead>
+    <TableRow>
+      <TableCell>Name</TableCell>
+      <TableCell>Description</TableCell>
+    </TableRow>
+  </TableHead>
+)
 
-const COLS: Record<
-  'docs' | 'fixable',
-  (rule: Rule, ruleName: string) => React.ReactNode
-> = {
-  fixable: (rule) => <p>{rule.fixable ? <CheckOutlined /> : ''}</p>,
-  docs: (rule) =>
-    !rule.docs ? null : (
-      <p>
-        <p>{rule.docs.description}</p>
-        <p>{rule.docs.category}</p>
-        <p>{rule.docs.recommended}</p>
-      </p>
-    ),
-}
-
-export const RuleTable: React.VFC<{
-  ruleMap: RuleMap
-}> = ({ ruleMap }) => {
-  const firstKey = keyof(ruleMap)[0]
-  if (!firstKey) {
-    return null
-  }
+export const TRow: React.VFC<{
+  ruleName: string
+  rule: ReportRule
+}> = ({ ruleName, rule }) => {
+  const [isOpen, setOpen] = useState(false)
+  const { issuesList, filesWithIssuesMap, issuesQuantity } = useIssues(
+    (issue) => issue.ruleId === rule.ruleId,
+  )
+  const filePaths = Object.keys(filesWithIssuesMap)
+  const sharedPath = getSharedPath(filePaths)
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell> </TableCell>
-            <TableCell>Name</TableCell>
-            {keyof(COLS).map((k) => (
-              <TableCell key={k}>{k}</TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
+    <>
+      <TableRow>
+        <TableCell>
+          <Box
+            flex={1}
+            display="flex"
+            flexDirection="row"
+            justifyContent="flex-start"
+          >
+            <Box mr={2} display="inline-block">
+              <IconButton
+                aria-label="expand row"
+                size="small"
+                onClick={() => setOpen(!isOpen)}
+              >
+                {isOpen ? icon.up : icon.down}
+              </IconButton>
+            </Box>
 
-        <TableBody>
-          {keyVal(ruleMap).map((kv) => (
-            <Row key={kv.key} ruleName={kv.key} rule={kv.value} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            <Box>
+              {!rule.docs?.url ? (
+                ruleName
+              ) : (
+                <a href={rule.docs.url}>{ruleName}</a>
+              )}
+              <br />
+              <SmallText>
+                {issuesQuantity.issues} issues in {issuesQuantity.files} files.
+              </SmallText>
+            </Box>
+          </Box>
+        </TableCell>
+
+        <TableCell align="left" valign="top">
+          {rule.docs?.description}
+          <br />
+          <Box display="flex" flexDirection="row">
+            <Box mr={2}>
+              <GrayText>
+                Fixable? {rule.fixable ? icon.yes : icon.no}
+                <br />
+                Recommended? {rule.docs?.recommended ? icon.yes : icon.no}
+              </GrayText>
+            </Box>
+            <GrayText>
+              Category: {rule.docs?.category}
+              <br />
+              Type: {rule.type}
+            </GrayText>
+          </Box>
+        </TableCell>
+      </TableRow>
+
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
+          <Collapse in={isOpen} timeout="auto" unmountOnExit>
+            <Box pb={5} pt={2}>
+              <SmallText>
+                Files in <GrayText>{sharedPath}</GrayText>:
+              </SmallText>
+              {filePaths.map((filePath) => (
+                <FileCollapse
+                  key={filePath}
+                  filePath={filePath}
+                  fileSource={filesWithIssuesMap[filePath].source || ''}
+                  sharedPath={sharedPath}
+                  issues={issuesList.filter((is) => is.filePath === filePath)}
+                />
+              ))}
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
   )
 }
 
-const Row: React.VFC<{
-  ruleName: string
-  rule: Rule
-}> = ({ ruleName, rule }) => {
-  const [isOpen, setOpen] = useState(false)
+const FileCollapse: React.VFC<{
+  filePath: string
+  fileSource: string
+  sharedPath: string
+  issues: ReportIssue[]
+}> = ({ filePath, fileSource, sharedPath, issues }) => {
   return (
-    <TableRow>
-      <TableCell>
-        <IconButton
-          aria-label="expand row"
-          size="small"
-          onClick={() => setOpen(!isOpen)}
+    <CollapseWithTitle
+      title={
+        <SmallText>
+          ...{filePath.replace(sharedPath, '')}{' '}
+          <GrayText>
+            <Chip
+              size="small"
+              label={<GrayText>{issues.length}</GrayText>}
+              variant="outlined"
+            />
+          </GrayText>
+        </SmallText>
+      }
+    >
+      {issues.map((issue) => (
+        <CollapseWithTitle
+          key={issue.issueId}
+          title={
+            <Alert
+              variant="outlined"
+              severity={issue.fatal ? 'error' : 'warning'}
+            >
+              {issue.message}
+            </Alert>
+          }
         >
-          {isOpen ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-        </IconButton>
-      </TableCell>
-      <TableCell align="left" valign="top" id={ruleName}>
-        {!rule.docs?.url ? ruleName : <a href={rule.docs.url}>{ruleName}</a>}
-      </TableCell>
-      {keyVal(COLS).map((kv) => (
-        <TableCell key={kv.key} align="left" valign="top">
-          {kv.value(rule, ruleName)}
-        </TableCell>
+          <pre>
+            <code>
+              {extractLines(fileSource, {
+                startLine: issue.line,
+                endLine: issue.endLine,
+                offset: 3,
+              }).join('\n')}
+            </code>
+          </pre>
+        </CollapseWithTitle>
       ))}
-    </TableRow>
+    </CollapseWithTitle>
   )
 }

@@ -2,23 +2,26 @@ import React, { useEffect } from 'react'
 import { getQueryParams } from '../lib/getQueryParams'
 import { useReport } from '../app-logic/hook/useReport'
 import { ContentWithReport } from './ContentWithReport'
+import { ContentEmpty } from './ContentEmpty'
 
 export const Content: React.VFC = () => {
+  const reportParam = getQueryParams().report
   const { report, reportURL, fetchReport } = useReport()
   useEffect(() => {
-    if (!reportURL) {
-      fetchReport(getQueryParams().report)
+    if (reportParam && reportURL !== reportParam) {
+      fetchReport(reportParam)
     }
-  }, [reportURL, fetchReport])
+  }, [reportParam, reportURL, fetchReport])
 
+  if (!reportParam) {
+    return <ContentEmpty variant="reportMissing" />
+  }
   if (!report) {
-    return <p>Loading...</p>
+    return <ContentEmpty variant="loading" />
+  }
+  if (!report.results?.[0]) {
+    return <ContentEmpty variant="empty" />
   }
 
-  const firstResult = report.results[0]
-  if (!firstResult) {
-    return <p>No issues 💪</p>
-  }
-
-  return <ContentWithReport report={report} />
+  return <ContentWithReport />
 }

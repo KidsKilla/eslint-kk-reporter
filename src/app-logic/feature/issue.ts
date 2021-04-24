@@ -1,13 +1,16 @@
 import { createEntityAdapter, createSlice, nanoid } from '@reduxjs/toolkit'
-import { Linter } from 'eslint'
+import { ESLintMessage } from '../eslintReport'
 import { updateReport } from './report'
 
-export interface ESLintIssue extends Linter.LintMessage {
-  id: string
+export interface ReportIssue extends Omit<ESLintMessage, 'ruleId'> {
+  issueId: string
   filePath: string
+  ruleId: string
 }
 
-export const issueAdapter = createEntityAdapter<ESLintIssue>()
+export const issueAdapter = createEntityAdapter<ReportIssue>({
+  selectId: (issue) => issue.issueId,
+})
 
 export const issueSlice = createSlice({
   name: 'msg',
@@ -16,13 +19,17 @@ export const issueSlice = createSlice({
   extraReducers: (builder) =>
     builder.addCase(updateReport, (state, action) => {
       const { results } = action.payload
-      const issues: ESLintIssue[] = []
+      const issues: ReportIssue[] = []
       results.forEach((res) => {
         res.messages.forEach((msg) => {
+          if (!msg.ruleId) {
+            return
+          }
           issues.push({
-            id: nanoid(),
+            issueId: nanoid(),
             filePath: res.filePath,
             ...msg,
+            ruleId: msg.ruleId,
           })
         })
       })

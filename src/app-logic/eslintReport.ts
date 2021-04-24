@@ -1,7 +1,10 @@
-import { ESLint } from 'eslint'
+import { ESLint, Linter, Rule } from 'eslint'
 import { hasProp } from '../lib/hasProp'
 
 export type ESLintReportItem = ESLint.LintResult
+export type ESLintMessage = Linter.LintMessage
+export type ESLintRuleMeta = Rule.RuleMetaData
+
 export interface ESLintReport {
   results: ESLintReportItem[]
   metadata: ESLint.LintResultData

@@ -2,10 +2,27 @@ import { useSelector } from 'react-redux'
 import { fileAdapter } from '../feature/file'
 import { rootSelect } from '../reducerMap'
 
-const select = fileAdapter.getSelectors(rootSelect.file)
+export const selFile = fileAdapter.getSelectors(rootSelect.file)
 
-export const useFile = () => {
+export const useAllFiles = () => {
   return {
-    files: useSelector(select.selectAll),
+    allFiles: useSelector(selFile.selectAll),
+  }
+}
+
+export const useOneFile = (filePath: string) => {
+  const file = useSelector((state) => selFile.selectById(state, filePath))
+  return {
+    file,
+  }
+}
+
+export const useFileSearch = (search: string) => {
+  const filesFound = useSelector((state) => {
+    const allFiles = selFile.selectAll(state)
+    return allFiles.filter((file) => file.filePath.indexOf(search) > -1)
+  })
+  return {
+    filesFound,
   }
 }
