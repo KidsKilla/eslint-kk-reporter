@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Typography, Paper, Box, Collapse, IconButton } from '@material-ui/core'
+import React from 'react'
+import { Typography, Box, Collapse, IconButton } from '@material-ui/core'
 import {
   KeyboardArrowUp,
   KeyboardArrowDown,
@@ -19,32 +19,31 @@ export const SmallText: React.FC = (props) => (
 
 export const CollapseWithTitle: React.FC<{
   title: React.ReactNode
+  isOpen: boolean
+  onToggle: (val: boolean) => void
 }> = (props) => {
-  const [isOpen, setOpen] = useState(false)
   return (
-    <Box mt={2}>
-      <Paper>
-        <Box
-          onClick={() => setOpen(!isOpen)}
-          p={1}
-          display="flex"
-          flexDirection="row"
-          alignItems="center"
+    <>
+      <Box
+        onClick={() => props.onToggle(!props.isOpen)}
+        p={1}
+        display="flex"
+        flexDirection="row"
+        alignItems="center"
+      >
+        <IconButton
+          aria-label="expand"
+          size="small"
+          onClick={() => props.onToggle(!props.isOpen)}
         >
-          <IconButton
-            aria-label="expand"
-            size="small"
-            onClick={() => setOpen(!isOpen)}
-          >
-            {isOpen ? icon.up : icon.down}
-          </IconButton>{' '}
-          <Box>{props.title}</Box>
-        </Box>
-        <Collapse in={isOpen} timeout="auto" unmountOnExit>
-          <Box pt={1}>{props.children}</Box>
-        </Collapse>
-      </Paper>
-    </Box>
+          {props.isOpen ? icon.up : icon.down}
+        </IconButton>{' '}
+        <Box>{props.title}</Box>
+      </Box>
+      <Collapse in={props.isOpen} timeout={300} unmountOnExit={false}>
+        <Box pt={1}>{props.children}</Box>
+      </Collapse>
+    </>
   )
 }
 

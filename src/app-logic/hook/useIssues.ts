@@ -5,6 +5,7 @@ import { selFile } from './useFile'
 import { selRule } from './useRule'
 import { ReportFile } from '../feature/file'
 import { ReportRule } from '../feature/rule'
+import { groupIssuesCount } from '../../lib/groupIssuesCount'
 
 export const selIssue = issueAdapter.getSelectors(rootSelect.issue)
 
@@ -18,7 +19,9 @@ export const useIssues = (
       const rulesViolatedMap: Record<string, ReportRule> = {}
       issuesList.forEach((issue) => {
         const { filePath, ruleId } = issue
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         filesWithIssuesMap[filePath] = selFile.selectById(state, filePath)!
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         rulesViolatedMap[ruleId] = selRule.selectById(state, ruleId)!
       })
 
@@ -27,9 +30,9 @@ export const useIssues = (
         filesWithIssuesMap,
         rulesViolatedMap,
         issuesQuantity: {
-          issues: issuesList.length,
-          files: Object.keys(filesWithIssuesMap).length,
-          rules: Object.keys(rulesViolatedMap).length,
+          ...groupIssuesCount(issuesList),
+          fileCount: Object.keys(filesWithIssuesMap).length,
+          ruleCount: Object.keys(rulesViolatedMap).length,
         },
         memoHash: issuesList.map((is) => is.issueId).join('\n'),
       }

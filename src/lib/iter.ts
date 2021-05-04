@@ -4,3 +4,6 @@ export const keyVal = <T>(obj: T) =>
   (Object.entries(obj).map(([key, value]) => ({ key, value })) as unknown) as {
     [K in keyof T]-?: { key: K; value: T[K] }
   }[keyof T][]
+
+export const isDefined = <T>(obj: T | null | undefined): obj is T =>
+  obj !== null

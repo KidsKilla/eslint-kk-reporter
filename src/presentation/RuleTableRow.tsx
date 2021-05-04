@@ -6,17 +6,15 @@ import {
   IconButton,
   Box,
   Collapse,
-  Chip,
-  Alert,
 } from '@material-ui/core'
 import { getSharedPath } from '../lib/filePath'
 import { ReportRule } from '../app-logic/feature/rule'
 import { useIssues } from '../app-logic/hook/useIssues'
-import { CollapseWithTitle, GrayText, icon, SmallText } from './util'
-import { extractLines } from '../lib/extractLines'
-import { ReportIssue } from '../app-logic/feature/issue'
+import { GrayText, icon, SmallText } from './util'
+import { FileCollapse } from './FileCollapse'
+import { useEventListener } from '../app-logic/hook/events'
 
-export const THead: React.VFC = () => (
+export const RuleTableHead: React.VFC = () => (
   <TableHead>
     <TableRow>
       <TableCell>Name</TableCell>
@@ -25,11 +23,13 @@ export const THead: React.VFC = () => (
   </TableHead>
 )
 
-export const TRow: React.VFC<{
+export const RuleTableRow: React.VFC<{
   ruleName: string
   rule: ReportRule
 }> = ({ ruleName, rule }) => {
   const [isOpen, setOpen] = useState(false)
+  useEventListener('ALL Collapse', setOpen)
+  useEventListener('ALL Expand', setOpen)
   const { issuesList, filesWithIssuesMap, issuesQuantity } = useIssues(
     (issue) => issue.ruleId === rule.ruleId,
   )
@@ -38,7 +38,7 @@ export const TRow: React.VFC<{
   return (
     <>
       <TableRow>
-        <TableCell>
+        <TableCell onClick={() => setOpen(!isOpen)}>
           <Box
             flex={1}
             display="flex"
@@ -46,24 +46,17 @@ export const TRow: React.VFC<{
             justifyContent="flex-start"
           >
             <Box mr={2} display="inline-block">
-              <IconButton
-                aria-label="expand row"
-                size="small"
-                onClick={() => setOpen(!isOpen)}
-              >
+              <IconButton aria-label="expand row" size="small">
                 {isOpen ? icon.up : icon.down}
               </IconButton>
             </Box>
 
             <Box>
-              {!rule.docs?.url ? (
-                ruleName
-              ) : (
-                <a href={rule.docs.url}>{ruleName}</a>
-              )}
+              {ruleName}
               <br />
               <SmallText>
-                {issuesQuantity.issues} issues in {issuesQuantity.files} files.
+                {issuesQuantity.issueTotalCount} issues in{' '}
+                {issuesQuantity.fileCount} files.
               </SmallText>
             </Box>
           </Box>
@@ -71,6 +64,15 @@ export const TRow: React.VFC<{
 
         <TableCell align="left" valign="top">
           {rule.docs?.description}
+          {rule.docs?.url && (
+            <SmallText>
+              <br />
+              <a href={rule.docs.url} target="_blank" rel="noreferrer">
+                Documentation
+              </a>
+            </SmallText>
+          )}
+
           <br />
           <Box display="flex" flexDirection="row">
             <Box mr={2}>
@@ -83,7 +85,7 @@ export const TRow: React.VFC<{
             <GrayText>
               Category: {rule.docs?.category}
               <br />
-              Type: {rule.type}
+              Type: {rule.type || 'N/A'}
             </GrayText>
           </Box>
         </TableCell>
@@ -91,7 +93,7 @@ export const TRow: React.VFC<{
 
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
-          <Collapse in={isOpen} timeout="auto" unmountOnExit>
+          <Collapse in={isOpen} timeout={300} unmountOnExit={false}>
             <Box pb={5} pt={2}>
               <SmallText>
                 Files in <GrayText>{sharedPath}</GrayText>:
@@ -110,53 +112,5 @@ export const TRow: React.VFC<{
         </TableCell>
       </TableRow>
     </>
-  )
-}
-
-const FileCollapse: React.VFC<{
-  filePath: string
-  fileSource: string
-  sharedPath: string
-  issues: ReportIssue[]
-}> = ({ filePath, fileSource, sharedPath, issues }) => {
-  return (
-    <CollapseWithTitle
-      title={
-        <SmallText>
-          ...{filePath.replace(sharedPath, '')}{' '}
-          <GrayText>
-            <Chip
-              size="small"
-              label={<GrayText>{issues.length}</GrayText>}
-              variant="outlined"
-            />
-          </GrayText>
-        </SmallText>
-      }
-    >
-      {issues.map((issue) => (
-        <CollapseWithTitle
-          key={issue.issueId}
-          title={
-            <Alert
-              variant="outlined"
-              severity={issue.fatal ? 'error' : 'warning'}
-            >
-              {issue.message}
-            </Alert>
-          }
-        >
-          <pre>
-            <code>
-              {extractLines(fileSource, {
-                startLine: issue.line,
-                endLine: issue.endLine,
-                offset: 3,
-              }).join('\n')}
-            </code>
-          </pre>
-        </CollapseWithTitle>
-      ))}
-    </CollapseWithTitle>
   )
 }
