@@ -7,7 +7,7 @@ jobs:
       NODE_VERSION: '12.x'
     steps:
       # Setup
-      - name: Check out repository code
+      - name: Check out repository code ${{ github.event.repository.name }}
         uses: actions/checkout@v2
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v2
@@ -16,7 +16,7 @@ jobs:
       # Build
       - run: yarn install
       - run: ls ${{ github.workspace }}
-      - run: yarn build
+      - run: PUBLIC_URL=/${{ github.event.repository.name }} yarn build
       - run: echo "🍏 Built ${{ job.status }}."
       # Publish
       - name: Publish
