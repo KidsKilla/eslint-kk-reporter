@@ -1,0 +1,29 @@
+name: Publish
+on:
+  push:
+    branches:
+      - main
+jobs:
+  Publish:
+    runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: '12.x'
+    steps:
+      # Setup
+      - name: Check out repository code ${{ github.event.repository.name }}
+        uses: actions/checkout@v2
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      # Build
+      - run: yarn install
+      - run: ls ${{ github.workspace }}
+      - run: PUBLIC_URL=/${{ github.event.repository.name }} yarn build
+      - run: echo "🍏 Built ${{ job.status }}."
+      # Publish
+      - name: Publish
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
