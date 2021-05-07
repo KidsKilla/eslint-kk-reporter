@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.js": "/KidsKilla/eslint-kk-reporter/static/js/main.0534e1b3.chunk.js",
-    "main.js.map": "/KidsKilla/eslint-kk-reporter/static/js/main.0534e1b3.chunk.js.map",
-    "runtime-main.js": "/KidsKilla/eslint-kk-reporter/static/js/runtime-main.a92f7891.js",
-    "runtime-main.js.map": "/KidsKilla/eslint-kk-reporter/static/js/runtime-main.a92f7891.js.map",
-    "static/css/2.ea628b94.chunk.css": "/KidsKilla/eslint-kk-reporter/static/css/2.ea628b94.chunk.css",
-    "static/js/2.d8b86c61.chunk.js": "/KidsKilla/eslint-kk-reporter/static/js/2.d8b86c61.chunk.js",
-    "static/js/2.d8b86c61.chunk.js.map": "/KidsKilla/eslint-kk-reporter/static/js/2.d8b86c61.chunk.js.map",
-    "static/js/3.5c689568.chunk.js": "/KidsKilla/eslint-kk-reporter/static/js/3.5c689568.chunk.js",
-    "static/js/3.5c689568.chunk.js.map": "/KidsKilla/eslint-kk-reporter/static/js/3.5c689568.chunk.js.map",
-    "index.html": "/KidsKilla/eslint-kk-reporter/index.html",
-    "static/css/2.ea628b94.chunk.css.map": "/KidsKilla/eslint-kk-reporter/static/css/2.ea628b94.chunk.css.map",
-    "static/js/2.d8b86c61.chunk.js.LICENSE.txt": "/KidsKilla/eslint-kk-reporter/static/js/2.d8b86c61.chunk.js.LICENSE.txt"
+    "main.js": "/eslint-kk-reporter/static/js/main.0534e1b3.chunk.js",
+    "main.js.map": "/eslint-kk-reporter/static/js/main.0534e1b3.chunk.js.map",
+    "runtime-main.js": "/eslint-kk-reporter/static/js/runtime-main.c30f8d69.js",
+    "runtime-main.js.map": "/eslint-kk-reporter/static/js/runtime-main.c30f8d69.js.map",
+    "static/css/2.ea628b94.chunk.css": "/eslint-kk-reporter/static/css/2.ea628b94.chunk.css",
+    "static/js/2.d8b86c61.chunk.js": "/eslint-kk-reporter/static/js/2.d8b86c61.chunk.js",
+    "static/js/2.d8b86c61.chunk.js.map": "/eslint-kk-reporter/static/js/2.d8b86c61.chunk.js.map",
+    "static/js/3.5c689568.chunk.js": "/eslint-kk-reporter/static/js/3.5c689568.chunk.js",
+    "static/js/3.5c689568.chunk.js.map": "/eslint-kk-reporter/static/js/3.5c689568.chunk.js.map",
+    "index.html": "/eslint-kk-reporter/index.html",
+    "static/css/2.ea628b94.chunk.css.map": "/eslint-kk-reporter/static/css/2.ea628b94.chunk.css.map",
+    "static/js/2.d8b86c61.chunk.js.LICENSE.txt": "/eslint-kk-reporter/static/js/2.d8b86c61.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.a92f7891.js",
+    "static/js/runtime-main.c30f8d69.js",
     "static/css/2.ea628b94.chunk.css",
     "static/js/2.d8b86c61.chunk.js",
     "static/js/main.0534e1b3.chunk.js"
