@@ -7,7 +7,7 @@ jobs:
       NODE_VERSION: '12.x'
     steps:
       # Setup
-      - name: Check out repository code
+      - name: Check out repository code ${{ github.event.repository.name }}
         uses: actions/checkout@v2
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v2
