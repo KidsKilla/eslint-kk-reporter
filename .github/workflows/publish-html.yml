@@ -17,10 +17,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       # Build
-      - run: yarn install
-      - run: ls ${{ github.workspace }}
-      - run: PUBLIC_URL=/${{ github.event.repository.name }} yarn build
-      - run: echo "🍏 Built ${{ job.status }}."
+      - run: |
+          yarn install
+          ls ${{ github.workspace }}
+          PUBLIC_URL=/${{ github.event.repository.name }} yarn build
+          echo "🍏 Built ${{ job.status }}."
       # Publish
       - name: Publish
         uses: peaceiris/actions-gh-pages@v3
